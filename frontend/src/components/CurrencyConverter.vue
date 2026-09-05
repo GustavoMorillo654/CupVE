@@ -1,17 +1,17 @@
 <template>
-  <div class="comic-panel p-5 sm:p-6 h-full flex flex-col justify-between">
+  <div class="comic-panel p-4 sm:p-6 h-full flex flex-col justify-between">
     <div>
       <!-- Comic Panel Header -->
-      <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
+      <div class="flex items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-emerald-400 text-slate-950 border-2 border-slate-900 flex items-center justify-center font-black shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-400 text-slate-950 border-2 border-slate-900 flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] flex-shrink-0">
             ⚡
           </div>
           <div>
-            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            <h2 class="text-base sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
               Conversor de Divisas
             </h2>
-            <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">
               Cálculo bidireccional instantáneo a 0ms
             </p>
           </div>
@@ -20,42 +20,42 @@
         <!-- Copy Result Comic Button -->
         <button
           @click="copyResultToClipboard"
-          class="comic-button px-3 py-1.5 text-xs flex items-center gap-1.5 transition-all"
+          class="comic-button px-2.5 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs flex items-center gap-1 transition-all flex-shrink-0"
           :class="
             hasCopied
               ? 'bg-emerald-400 text-slate-950'
               : 'bg-yellow-300 text-slate-950 dark:bg-yellow-400 hover:bg-yellow-200'
           "
         >
-          <Check v-if="hasCopied" class="w-3.5 h-3.5" />
-          <Copy v-else class="w-3.5 h-3.5" />
+          <Check v-if="hasCopied" class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <Copy v-else class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           <span>{{ hasCopied ? '¡COPIADO!' : 'COPIAR' }}</span>
         </button>
       </div>
 
       <!-- Rate Selection Comic Chips (3 rates) -->
-      <div class="mb-4">
-        <label class="block text-[11px] uppercase tracking-wider text-slate-700 dark:text-slate-300 font-black mb-2">
+      <div class="mb-3 sm:mb-4">
+        <label class="block text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-700 dark:text-slate-300 font-black mb-1.5">
           Tasa aplicada:
         </label>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
           <button
             v-for="opt in rateOptions"
             :key="opt.key"
             @click="selectRate(opt.key)"
             type="button"
-            class="comic-button py-2 px-2 text-xs flex flex-col items-center justify-center gap-0.5 transition-all text-center"
+            class="comic-button py-1.5 px-1 sm:py-2 sm:px-2 text-xs flex flex-col items-center justify-center gap-0.5 transition-all text-center"
             :class="
               activeRateKey === opt.key
-                ? 'bg-emerald-400 text-slate-950 !border-slate-900 !shadow-[3px_3px_0px_0px_rgba(15,23,42,1)]'
+                ? 'bg-emerald-400 text-slate-950 !border-slate-900 !shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] sm:!shadow-[3px_3px_0px_0px_rgba(15,23,42,1)]'
                 : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
             "
           >
-            <div class="font-black text-xs flex items-center gap-1">
+            <div class="font-black text-[11px] sm:text-xs flex items-center gap-1">
               <span>{{ opt.symbol }}</span>
               <span class="truncate">{{ opt.shortLabel }}</span>
             </div>
-            <span class="text-[10px] font-mono font-bold opacity-80">
+            <span class="text-[9px] sm:text-[10px] font-mono font-bold opacity-85">
               Bs. {{ formatNumber(opt.rate) }}
             </span>
           </button>

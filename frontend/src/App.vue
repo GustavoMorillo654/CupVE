@@ -109,11 +109,35 @@
           </div>
         </div>
 
-        <!-- VIÑETA 2 & 3: Conversor y Comparador de Pago LADO A LADO (Sin Scroll!) -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch pt-1">
+        <!-- Mobile Segmented Tool Switcher (Visible only on mobile/tablet < lg) -->
+        <div class="lg:hidden flex rounded-xl border-2 border-slate-900 bg-white dark:bg-slate-900 p-1 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
+          <button
+            @click="activeMobileTab = 'converter'"
+            type="button"
+            class="flex-1 py-1.5 px-2 rounded-lg text-xs font-black uppercase transition-all flex items-center justify-center gap-1.5"
+            :class="activeMobileTab === 'converter' ? 'bg-emerald-400 text-slate-950 shadow-sm' : 'text-slate-600 dark:text-slate-400'"
+          >
+            ⚡ Conversor
+          </button>
+          <button
+            @click="activeMobileTab = 'comparator'"
+            type="button"
+            class="flex-1 py-1.5 px-2 rounded-lg text-xs font-black uppercase transition-all flex items-center justify-center gap-1.5"
+            :class="activeMobileTab === 'comparator' ? 'bg-cyan-400 text-slate-950 shadow-sm' : 'text-slate-600 dark:text-slate-400'"
+          >
+            🛍️ ¿Cómo Pagar?
+          </button>
+        </div>
+
+        <!-- VIÑETA 2 & 3: Conversor y Comparador de Pago (Tabbed on mobile, Side-by-Side on desktop) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch pt-0.5 sm:pt-1">
           <!-- Columna Izquierda: Conversor de Divisas -->
-          <div id="converter-section" class="flex flex-col">
-            <div class="flex items-center gap-2 mb-2">
+          <div
+            id="converter-section"
+            class="flex-col"
+            :class="{ 'hidden lg:flex': activeMobileTab !== 'converter', 'flex': activeMobileTab === 'converter' }"
+          >
+            <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
               <span class="comic-badge bg-emerald-400 text-slate-950">
                 VIÑETA 2
               </span>
@@ -128,8 +152,12 @@
           </div>
 
           <!-- Columna Derecha: Asistente de Compra Inteligente -->
-          <div id="comparator-section" class="flex flex-col">
-            <div class="flex items-center gap-2 mb-2">
+          <div
+            id="comparator-section"
+            class="flex-col"
+            :class="{ 'hidden lg:flex': activeMobileTab !== 'comparator', 'flex': activeMobileTab === 'comparator' }"
+          >
+            <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
               <span class="comic-badge bg-cyan-400 text-slate-950">
                 VIÑETA 3
               </span>
@@ -142,6 +170,7 @@
         </section>
       </template>
     </main>
+
 
     <!-- Comic Ultra-Compact Single-Line Footer -->
     <footer class="w-full border-t-2 border-slate-900 dark:border-slate-300/80 py-2 px-3 sm:px-6 backdrop-blur-md bg-white/95 dark:bg-slate-950/95 mt-auto">
@@ -232,10 +261,13 @@ const formatNumber = (value: number, decimals: number = 2): string => {
   }).format(value);
 };
 
+const activeMobileTab = ref<'converter' | 'comparator'>('converter');
+
 /**
  * Handles selecting a rate from a dashboard card.
  */
 const handleSelectRate = (key: RateKey) => {
+  activeMobileTab.value = 'converter';
   if (converterRef.value) {
     converterRef.value.selectRate(key);
   }

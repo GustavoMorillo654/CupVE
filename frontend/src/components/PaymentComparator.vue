@@ -1,17 +1,17 @@
 <template>
-  <div class="comic-panel p-5 sm:p-6 h-full flex flex-col justify-between">
+  <div class="comic-panel p-4 sm:p-6 h-full flex flex-col justify-between">
     <div>
       <!-- Comic Panel Header -->
-      <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
+      <div class="flex items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-cyan-400 text-slate-950 border-2 border-slate-900 flex items-center justify-center font-black shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-400 text-slate-950 border-2 border-slate-900 flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] flex-shrink-0">
             🛍️
           </div>
           <div>
-            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            <h2 class="text-base sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
               ¿Cómo Conviene Pagar?
             </h2>
-            <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">
               Compara precio en tienda (BCV) vs USDT
             </p>
           </div>
@@ -20,22 +20,22 @@
         <!-- Copy Comic Button -->
         <button
           @click="copyComparison"
-          class="comic-button px-3 py-1.5 text-xs flex items-center gap-1.5 transition-all"
+          class="comic-button px-2.5 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs flex items-center gap-1 transition-all flex-shrink-0"
           :class="
             hasCopied
               ? 'bg-cyan-400 text-slate-950'
               : 'bg-cyan-300 text-slate-950 dark:bg-cyan-400 hover:bg-cyan-200'
           "
         >
-          <Check v-if="hasCopied" class="w-3.5 h-3.5" />
-          <Copy v-else class="w-3.5 h-3.5" />
+          <Check v-if="hasCopied" class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <Copy v-else class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           <span>{{ hasCopied ? '¡COPIADO!' : 'COPIAR' }}</span>
         </button>
       </div>
 
       <!-- Store Price Input -->
-      <div class="mb-4">
-        <label class="block text-[11px] uppercase tracking-wider text-slate-700 dark:text-slate-300 font-black mb-1.5">
+      <div class="mb-3 sm:mb-4">
+        <label class="block text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-700 dark:text-slate-300 font-black mb-1.5">
           Precio en tienda (Dólares BCV):
         </label>
         <div class="relative">
@@ -48,7 +48,7 @@
             min="1"
             v-model="storePriceInput"
             placeholder="Ej: 100"
-            class="comic-input w-full pl-7 pr-16 py-2.5 text-lg font-bold"
+            class="comic-input w-full pl-7 pr-14 sm:pr-16 py-2 sm:py-2.5 text-base sm:text-lg font-bold"
           />
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-xs font-black text-slate-400">
             USD BCV
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Quick Presets -->
-        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+        <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 mt-2">
           <span class="text-[10px] font-black text-slate-500 dark:text-slate-400">Rápidos:</span>
           <button
             v-for="amt in [20, 50, 100, 150, 200]"
@@ -76,39 +76,39 @@
       </div>
 
       <!-- Comic Battle Grid: Efectivo VS Bolívares con USDT -->
-      <div class="grid grid-cols-2 gap-2.5 mb-4">
+      <div class="grid grid-cols-2 gap-2 sm:gap-2.5 mb-3 sm:mb-4">
         <!-- Option A: Dólares Efectivo -->
-        <div class="p-3 rounded-xl border-2 border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] dark:border-slate-300/80">
+        <div class="p-2.5 sm:p-3 rounded-xl border-2 border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] dark:border-slate-300/80">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] font-black uppercase text-slate-500">
+            <span class="text-[9px] sm:text-[10px] font-black uppercase text-slate-500">
               En Efectivo
             </span>
-            <span class="text-[9px] font-bold px-1.5 rounded bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            <span class="text-[8px] sm:text-[9px] font-bold px-1.5 rounded bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
               Físico
             </span>
           </div>
-          <div class="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div class="text-lg sm:text-xl font-black font-mono text-slate-900 dark:text-white truncate">
             ${{ formatNumber(numericPrice, 0) }}
           </div>
-          <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-1">
+          <span class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-1">
             Billete directo
           </span>
         </div>
 
         <!-- Option B: Bolívares con USDT -->
-        <div class="p-3 rounded-xl border-2 border-slate-900 bg-emerald-100 dark:bg-emerald-950/60 dark:border-emerald-400 flex flex-col justify-between shadow-[3px_3px_0px_0px_rgba(16,185,129,1)]">
+        <div class="p-2.5 sm:p-3 rounded-xl border-2 border-slate-900 bg-emerald-100 dark:bg-emerald-950/60 dark:border-emerald-400 flex flex-col justify-between shadow-[2px_2px_0px_0px_rgba(16,185,129,1)] sm:shadow-[3px_3px_0px_0px_rgba(16,185,129,1)]">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-400">
+            <span class="text-[9px] sm:text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-400">
               Vía USDT (VES)
             </span>
             <span class="comic-badge !px-1 !py-0 !text-[8px] bg-emerald-400 text-slate-950">
               MEJOR
             </span>
           </div>
-          <div class="text-xl font-black font-mono text-emerald-700 dark:text-emerald-300">
+          <div class="text-lg sm:text-xl font-black font-mono text-emerald-700 dark:text-emerald-300 truncate">
             {{ formatNumber(realUsdtNeeded, 2) }} ₮
           </div>
-          <span class="text-[10px] text-emerald-800 dark:text-emerald-400 font-bold mt-1 truncate">
+          <span class="text-[9px] sm:text-[10px] text-emerald-800 dark:text-emerald-400 font-bold mt-1 truncate">
             = Bs. {{ formatNumber(totalVesToPay, 0) }}
           </span>
         </div>
@@ -116,12 +116,12 @@
     </div>
 
     <!-- Comic Speech Bubble Verdict -->
-    <div class="p-3.5 rounded-xl border-2 border-slate-900 bg-amber-300 dark:bg-amber-400 text-slate-950 shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] space-y-1">
-      <div class="flex items-center gap-1.5 font-black text-xs uppercase tracking-tight">
-        <Sparkles class="w-4 h-4" />
+    <div class="p-2.5 sm:p-3.5 rounded-xl border-2 border-slate-900 bg-amber-300 dark:bg-amber-400 text-slate-950 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] sm:shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] space-y-0.5 sm:space-y-1">
+      <div class="flex items-center gap-1.5 font-black text-[11px] sm:text-xs uppercase tracking-tight">
+        <Sparkles class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         <span>¡Veredicto: Paga en Bolívares!</span>
       </div>
-      <p class="text-xs font-bold leading-snug">
+      <p class="text-[11px] sm:text-xs font-bold leading-snug">
         Ahorras <span class="underline font-black">${{ formatNumber(savingsAmount, 2) }} USDT</span> (un <span class="font-black">{{ formatNumber(savingsPercentage, 1) }}% de descuento</span> real comparado con pagar en efectivo).
       </p>
     </div>

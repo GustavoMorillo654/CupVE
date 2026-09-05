@@ -1,26 +1,26 @@
 <template>
   <div
     @click="$emit('select')"
-    class="comic-panel p-4 sm:p-5 cursor-pointer group transition-all duration-200"
+    class="comic-panel p-3.5 sm:p-5 cursor-pointer group transition-all duration-200"
     :class="{
-      '!border-emerald-500 !shadow-[6px_6px_0px_0px_rgba(16,185,129,1)] dark:!border-emerald-400 dark:!shadow-[6px_6px_0px_0px_rgba(52,211,153,0.8)] -translate-x-0.5 -translate-y-0.5': isActive,
+      '!border-emerald-500 !shadow-[4px_4px_0px_0px_rgba(16,185,129,1)] sm:!shadow-[6px_6px_0px_0px_rgba(16,185,129,1)] dark:!border-emerald-400 dark:!shadow-[4px_4px_0px_0px_rgba(52,211,153,0.8)] sm:dark:!shadow-[6px_6px_0px_0px_rgba(52,211,153,0.8)] -translate-x-0.5 -translate-y-0.5': isActive,
     }"
   >
     <!-- Top Row: Icon, Currency Info & Comic Tag -->
-    <div class="flex items-start justify-between gap-3 mb-3">
-      <div class="flex items-center gap-3">
+    <div class="flex items-start justify-between gap-2 sm:gap-3 mb-2.5 sm:mb-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <!-- Currency Symbol Circle with Comic Outline -->
         <div
-          class="w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] dark:border-slate-200 dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] transition-transform group-hover:scale-105"
+          class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-lg sm:text-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] dark:border-slate-200 dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] transition-transform group-hover:scale-105 flex-shrink-0"
           :class="symbolClass"
         >
           {{ rateItem.symbol }}
         </div>
         <div>
-          <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <h3 class="font-black text-sm sm:text-lg text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
             {{ rateItem.name }}
           </h3>
-          <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+          <span class="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">
             {{ rateItem.source }}
           </span>
         </div>
