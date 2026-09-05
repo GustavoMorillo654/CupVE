@@ -3,8 +3,8 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
       <!-- Logo and App Title -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-400 text-slate-950 border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] sm:shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center font-black text-base sm:text-xl flex-shrink-0">
-          <Coins class="w-4 h-4 sm:w-5 sm:h-5" />
+        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] sm:shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center flex-shrink-0 bg-slate-950">
+          <img src="/logo.jpg" alt="CupVE Logo" class="w-full h-full object-cover" />
         </div>
         <div>
           <div class="flex items-center gap-1.5 sm:gap-2">
@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { Coins, RefreshCw, Clock, Sun, Moon } from 'lucide-vue-next';
+import { RefreshCw, Clock, Sun, Moon } from 'lucide-vue-next';
 
 interface Props {
   isRefreshing: boolean;
