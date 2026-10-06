@@ -43,6 +43,8 @@ export function useRates() {
       const msg = err instanceof Error ? err.message : 'Error fetching exchange rates';
       errorMessage.value = msg;
       console.error('Rates fetch error:', err);
+      // Wait 30 seconds before auto-retrying to avoid hammering server/network
+      secondsUntilRefresh.value = 30;
     } finally {
       isLoading.value = false;
       isRefreshing.value = false;

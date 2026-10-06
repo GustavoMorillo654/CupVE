@@ -12,15 +12,70 @@
 
     <!-- Main Comic Page Container (Zero-Scroll Compact Layout) -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-5 py-2 sm:py-3 space-y-2 sm:space-y-2.5">
-      <!-- Loading Skeleton (Comic Style) -->
-      <div v-if="isLoading && !rates" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div v-for="i in 3" :key="i" class="comic-panel p-5 h-40 animate-pulse flex flex-col justify-between">
-          <div class="flex justify-between items-center">
-            <div class="w-10 h-10 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
-            <div class="w-16 h-5 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+      <!-- Loading Skeleton (Comic Style - 4 Cards + Dashboard Blocks) -->
+      <div v-if="isLoading && !rates" class="space-y-3 sm:space-y-4">
+        <!-- Skeleton Viñeta 1: 4 Cards -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-16 h-5 bg-slate-200 dark:bg-white/10 rounded-lg animate-pulse"></div>
+            <div class="w-48 h-5 bg-slate-200 dark:bg-white/10 rounded-lg animate-pulse"></div>
           </div>
-          <div class="w-28 h-7 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
-          <div class="w-20 h-4 bg-slate-200 dark:bg-white/10 rounded"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div v-for="i in 4" :key="i" class="comic-panel p-4 sm:p-5 h-44 animate-pulse flex flex-col justify-between">
+              <div class="flex justify-between items-start">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+                  <div class="space-y-1.5">
+                    <div class="w-24 h-4 bg-slate-200 dark:bg-white/10 rounded"></div>
+                    <div class="w-16 h-3 bg-slate-200 dark:bg-white/10 rounded"></div>
+                  </div>
+                </div>
+                <div class="w-14 h-5 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+              </div>
+              <div class="space-y-1.5">
+                <div class="w-20 h-3 bg-slate-200 dark:bg-white/10 rounded"></div>
+                <div class="w-32 h-8 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+                <div class="w-28 h-3 bg-slate-200 dark:bg-white/10 rounded"></div>
+              </div>
+              <div class="pt-2 border-t-2 border-slate-900/10 dark:border-white/10 flex justify-between items-center">
+                <div class="w-24 h-3 bg-slate-200 dark:bg-white/10 rounded"></div>
+                <div class="w-12 h-3 bg-slate-200 dark:bg-white/10 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Brecha Strip -->
+        <div class="h-14 w-full rounded-2xl border-2 border-slate-900 bg-slate-200 dark:bg-white/10 animate-pulse"></div>
+
+        <!-- Skeleton Viñeta 2 & 3 (Converter & Comparator) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <div class="comic-panel p-5 h-80 animate-pulse flex flex-col justify-between">
+            <div class="flex justify-between items-center">
+              <div class="w-36 h-6 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+              <div class="w-16 h-6 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+              <div v-for="j in 4" :key="j" class="h-10 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+            </div>
+            <div class="space-y-3">
+              <div class="h-12 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+              <div class="h-12 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+            </div>
+            <div class="h-10 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+          </div>
+          <div class="comic-panel p-5 h-80 animate-pulse flex flex-col justify-between">
+            <div class="flex justify-between items-center">
+              <div class="w-40 h-6 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+              <div class="w-16 h-6 bg-slate-200 dark:bg-white/10 rounded-lg"></div>
+            </div>
+            <div class="h-12 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="h-20 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+              <div class="h-20 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+            </div>
+            <div class="h-14 bg-slate-200 dark:bg-white/10 rounded-xl"></div>
+          </div>
         </div>
       </div>
 
@@ -57,8 +112,8 @@
             </span>
           </div>
 
-          <!-- 3 Rate Cards Side-by-Side -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+          <!-- 4 Rate Cards in Responsive Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <!-- BCV USD Card -->
             <RateCard
               :rateItem="rates.bcvUsd"
@@ -82,6 +137,14 @@
               cardType="binance_usdt"
               :spreadPercentage="exchangeGapPercent"
               @select="handleSelectRate('binance_usdt')"
+            />
+
+            <!-- Peso Cúcuta COP Card (Frontera) -->
+            <RateCard
+              :rateItem="rates.cucutaCop"
+              :isActive="activeRateKey === 'cucuta_cop'"
+              cardType="cucuta_cop"
+              @select="handleSelectRate('cucuta_cop')"
             />
           </div>
         </section>
@@ -148,6 +211,7 @@
             <CurrencyConverter
               ref="converterRef"
               :rates="rates"
+              @rateChange="handleConverterRateChange"
             />
           </div>
 
@@ -228,9 +292,15 @@ const {
 // Reference to the CurrencyConverter component instance
 const converterRef = ref<InstanceType<typeof CurrencyConverter> | null>(null);
 
+const selectedRateKey = ref<RateKey>('bcv_usd');
+
 const activeRateKey = computed<RateKey>(() => {
-  return converterRef.value?.activeRateKey || 'bcv_usd';
+  return selectedRateKey.value;
 });
+
+const handleConverterRateChange = (key: RateKey) => {
+  selectedRateKey.value = key;
+};
 
 /**
  * Exchange rate gap percentage between Binance USDT and BCV USD:
@@ -267,6 +337,7 @@ const activeMobileTab = ref<'converter' | 'comparator'>('converter');
  * Handles selecting a rate from a dashboard card.
  */
 const handleSelectRate = (key: RateKey) => {
+  selectedRateKey.value = key;
   activeMobileTab.value = 'converter';
   if (converterRef.value) {
     converterRef.value.selectRate(key);

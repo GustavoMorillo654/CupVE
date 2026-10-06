@@ -107,6 +107,69 @@ class RateService:
             last_updated=datetime.now(timezone.utc).isoformat(),
         )
 
+    async def _fetch_cucuta_cop_rates(self, client: httpx.AsyncClient, ves_per_usd: float) -> RateItem:
+        """
+        Fetch Colombian Peso (COP) market price in USD/USDT from Binance P2P with fallback
+        to the official Colombia TRM API, and calculate the border cross-rate with Bolívares.
+        """
+        cop_per_usd = 3200.0
+        headers = {
+            "User-Agent": DEFAULT_USER_AGENT,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
+        # Try Binance P2P COP first
+        try:
+            payload = {
+                "asset": "USDT",
+                "fiat": "COP",
+                "merchantCheck": False,
+                "page": 1,
+                "rows": 5,
+                "tradeType": "BUY",
+            }
+            res = await client.post(BINANCE_P2P_SEARCH_URL, json=payload, headers=headers, timeout=10.0)
+            if res.status_code == 200:
+                data = res.json().get("data", [])
+                prices = [float(item["adv"]["price"]) for item in data if "adv" in item and "price" in item["adv"]]
+                if prices:
+                    cop_per_usd = sum(prices[:3]) / len(prices[:3])
+        except Exception as exc:
+            logger.warning("Binance P2P COP fetch failed, trying TRM fallback: %s", exc)
+            try:
+                trm_url = "https://www.datos.gov.co/resource/32sa-8pi3.json?%24limit=1&%24order=vigenciadesde%20DESC"
+                trm_res = await client.get(trm_url, timeout=8.0)
+                if trm_res.status_code == 200:
+                    trm_data = trm_res.json()
+                    if trm_data and "valor" in trm_data[0]:
+                        cop_per_usd = float(trm_data[0]["valor"])
+            except Exception as trm_exc:
+                logger.error("Colombia TRM fallback failed: %s", trm_exc)
+
+        # Round COP per USD directly to nearest multiple of 100
+        # (Standard border trading practice in San Cristóbal / Táchira, e.g. 3200, 3100)
+        cop_per_usd = float(round(cop_per_usd / 100.0) * 100)
+
+        # Cross-rate calculation:
+        # Rate = Bolívares por cada 1 Peso (VES / COP)
+        # Buy = Pesos por cada 1 Bolívar (COP / VES, traditional Cúcuta format)
+        # Sell = Pesos por cada 1 Dólar (COP / USD, rounded to 100)
+        effective_ves_usd = ves_per_usd if ves_per_usd > 0 else 990.0
+        ves_per_cop = round(effective_ves_usd / cop_per_usd, 4)
+        cop_per_ves = round(cop_per_usd / effective_ves_usd, 2)
+
+        return RateItem(
+            name="Peso Cúcuta",
+            currency="COP",
+            symbol="COP",
+            rate=ves_per_cop,
+            buy=cop_per_ves,
+            sell=cop_per_usd,
+            source="Mercado Cúcuta (Frontera)",
+            last_updated=datetime.now(timezone.utc).isoformat(),
+        )
+
     async def get_all_rates(self, force_refresh: bool = False) -> RatesResponse:
         """
         Return the current rates, serving from in-memory cache if valid,
@@ -135,7 +198,7 @@ class RateService:
 
             headers = {"User-Agent": DEFAULT_USER_AGENT}
             async with httpx.AsyncClient(headers=headers, timeout=15.0) as client:
-                # Fetch all rates concurrently
+                # Fetch base rates concurrently
                 bcv_usd_task = self._fetch_bcv_rate(client, "dolares", "USD", "$", "Dólar BCV")
                 bcv_eur_task = self._fetch_bcv_rate(client, "euros", "EUR", "€", "Euro BCV")
                 binance_task = self._fetch_binance_p2p_rates(client)
@@ -160,14 +223,32 @@ class RateService:
                 if isinstance(results[2], Exception):
                     logger.error("Failed to fetch Binance USDT: %s", results[2])
 
+                # Use representative USD/VES rate for Cúcuta cross-rate
+                ref_usd_ves = binance_usdt.rate if binance_usdt else (bcv_usd.rate if bcv_usd else 990.0)
+                try:
+                    cucuta_cop = await self._fetch_cucuta_cop_rates(client, ref_usd_ves)
+                except Exception as cop_exc:
+                    logger.error("Failed to fetch Cucuta COP: %s", cop_exc)
+                    cucuta_cop = self._cached_rates.cucuta_cop if self._cached_rates else RateItem(
+                        name="Peso Cúcuta",
+                        currency="COP",
+                        symbol="COP",
+                        rate=0.3097,
+                        buy=3.23,
+                        sell=3200.0,
+                        source="Mercado Cúcuta (Frontera)",
+                        last_updated=now.isoformat(),
+                    )
+
                 # If completely empty and failed, raise runtime error
-                if bcv_usd is None or bcv_eur is None or binance_usdt is None:
+                if bcv_usd is None or bcv_eur is None or binance_usdt is None or cucuta_cop is None:
                     raise RuntimeError("Failed to retrieve exchange rates from external providers.")
 
                 self._cached_rates = RatesResponse(
                     bcv_usd=bcv_usd,
                     bcv_eur=bcv_eur,
                     binance_usdt=binance_usdt,
+                    cucuta_cop=cucuta_cop,
                     cached_at=now.isoformat(),
                     cache_ttl_seconds=CACHE_TTL_SECONDS,
                 )
@@ -176,10 +257,16 @@ class RateService:
 
     async def convert(self, amount: float, from_currency: str, to_currency: str, rate_type: str) -> ConversionResponse:
         """
-        Convert an amount between Bolivares (VES) and foreign currencies (USD, EUR, USDT)
-        based on the selected rate type.
+        Convert an amount between Bolivares (VES), foreign currencies (USD, EUR, USDT),
+        and Colombian Pesos (COP).
         """
         rates_data = await self.get_all_rates()
+
+        from_curr = from_currency.upper()
+        to_curr = to_currency.upper()
+
+        cop_ves_rate = rates_data.cucuta_cop.rate  # Bolívares por Peso (ej. 0.3097)
+        cop_usd_rate = float(round((rates_data.cucuta_cop.sell or 3200.0) / 100.0) * 100)  # Pesos por Dólar redondeado a 100
 
         # Map rate types to values and human readable names
         rate_mapping: Dict[str, tuple[float, str]] = {
@@ -188,33 +275,56 @@ class RateService:
             "binance_usdt": (rates_data.binance_usdt.rate, "Binance USDT (Promedio)"),
             "binance_usdt_buy": (rates_data.binance_usdt.buy or rates_data.binance_usdt.rate, "Binance USDT (Compra)"),
             "binance_usdt_sell": (rates_data.binance_usdt.sell or rates_data.binance_usdt.rate, "Binance USDT (Venta)"),
+            "cucuta_cop": (cop_ves_rate, "Peso Cúcuta (COP / VES)"),
+            "cucuta_cop_usd": (cop_usd_rate, "Peso Cúcuta (COP / USD)"),
         }
 
         selected_rate, rate_label = rate_mapping.get(rate_type, (rates_data.bcv_usd.rate, "Dólar BCV Oficial"))
 
-        from_curr = from_currency.upper()
-        to_curr = to_currency.upper()
-
-        if from_curr == to_curr:
+        # Direct conversions involving COP
+        if from_curr == "COP" and to_curr == "VES":
+            converted = amount * cop_ves_rate
+            applied = cop_ves_rate
+            label = "Peso Cúcuta (COP / VES)"
+        elif from_curr == "VES" and to_curr == "COP":
+            converted = amount / cop_ves_rate if cop_ves_rate > 0 else 0.0
+            applied = cop_ves_rate
+            label = "Peso Cúcuta (COP / VES)"
+        elif from_curr == "COP" and to_curr == "USD":
+            converted = amount / cop_usd_rate if cop_usd_rate > 0 else 0.0
+            applied = cop_usd_rate
+            label = "Peso Cúcuta (COP / USD)"
+        elif from_curr == "USD" and to_curr == "COP":
+            converted = amount * cop_usd_rate
+            applied = cop_usd_rate
+            label = "Peso Cúcuta (COP / USD)"
+        elif from_curr == to_curr:
             converted = amount
+            applied = 1.0
+            label = "Misma Divisa"
         elif from_curr != "VES" and to_curr == "VES":
             converted = amount * selected_rate
+            applied = selected_rate
+            label = rate_label
         elif from_curr == "VES" and to_curr != "VES":
             converted = amount / selected_rate if selected_rate > 0 else 0.0
+            applied = selected_rate
+            label = rate_label
         else:
             # Conversion between two foreign currencies via VES
             ves_value = amount * selected_rate
-            # Default to target currency's official rate
             target_rate = rates_data.bcv_eur.rate if to_curr == "EUR" else rates_data.bcv_usd.rate
             converted = ves_value / target_rate if target_rate > 0 else 0.0
+            applied = selected_rate
+            label = rate_label
 
         return ConversionResponse(
             original_amount=round(amount, 4),
             converted_amount=round(converted, 4),
             from_currency=from_curr,
             to_currency=to_curr,
-            applied_rate=selected_rate,
-            rate_name=rate_label,
+            applied_rate=applied,
+            rate_name=label,
         )
 
 

@@ -9,11 +9,11 @@ class RateItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     name: str = Field(..., description="Display name of the currency or monitor")
-    currency: str = Field(..., description="Currency code (USD, EUR, USDT, VES)")
-    symbol: str = Field(..., description="Currency symbol ($, €, ₮, Bs.)")
+    currency: str = Field(..., description="Currency code (USD, EUR, USDT, COP, VES)")
+    symbol: str = Field(..., description="Currency symbol ($, €, ₮, COP, Bs.)")
     rate: float = Field(..., description="Main reference exchange rate in Bolivares (VES)")
-    buy: Optional[float] = Field(None, description="Buy price if applicable (e.g., Binance P2P Buy)")
-    sell: Optional[float] = Field(None, description="Sell price if applicable (e.g., Binance P2P Sell)")
+    buy: Optional[float] = Field(None, description="Buy price or secondary cross rate (e.g., COP per VES)")
+    sell: Optional[float] = Field(None, description="Sell price or reference USD rate (e.g., COP per USD)")
     source: str = Field(..., description="Data provider or authority name")
     last_updated: str = Field(..., alias="lastUpdated", description="ISO 8601 formatted update timestamp")
 
@@ -27,6 +27,7 @@ class RatesResponse(BaseModel):
     bcv_usd: RateItem = Field(..., alias="bcvUsd")
     bcv_eur: RateItem = Field(..., alias="bcvEur")
     binance_usdt: RateItem = Field(..., alias="binanceUsdt")
+    cucuta_cop: RateItem = Field(..., alias="cucutaCop")
     cached_at: str = Field(..., alias="cachedAt", description="Timestamp when cache was generated")
     cache_ttl_seconds: int = Field(..., alias="cacheTtlSeconds", description="Cache time-to-live in seconds")
 
@@ -38,8 +39,8 @@ class ConversionRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     amount: float = Field(..., gt=0, description="Amount to convert, must be positive")
-    from_currency: str = Field(..., alias="fromCurrency", description="Source currency code: USD, EUR, USDT, or VES")
-    to_currency: str = Field(..., alias="toCurrency", description="Target currency code: USD, EUR, USDT, or VES")
+    from_currency: str = Field(..., alias="fromCurrency", description="Source currency code: USD, EUR, USDT, COP, or VES")
+    to_currency: str = Field(..., alias="toCurrency", description="Target currency code: USD, EUR, USDT, COP, or VES")
     rate_type: str = Field("bcv_usd", alias="rateType", description="Key identifying which rate to apply")
 
 

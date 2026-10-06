@@ -44,6 +44,7 @@
           </div>
           <input
             type="number"
+            inputmode="decimal"
             step="any"
             min="1"
             v-model="storePriceInput"
@@ -148,11 +149,11 @@ const numericPrice = computed<number>(() => {
 });
 
 const bcvRate = computed<number>(() => {
-  return props.rates?.bcvUsd.rate || 807.3862;
+  return props.rates?.bcvUsd.rate || 0;
 });
 
 const usdtRate = computed<number>(() => {
-  return props.rates?.binanceUsdt.rate || 965.50;
+  return props.rates?.binanceUsdt.rate || 0;
 });
 
 /**
